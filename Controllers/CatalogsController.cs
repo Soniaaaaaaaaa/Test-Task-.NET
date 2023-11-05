@@ -21,7 +21,7 @@ namespace Test_Task.Controllers
         // GET: Catalogs
         public async Task<IActionResult> Index()
         {
-            var catalogContext = _context.Catalogs.Include(c => c.ParentCatalog);
+            var catalogContext = _context.Catalogs.Where(c => c.ParentCatalog==null);
             return View(await catalogContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace Test_Task.Controllers
             }
 
             var catalog = await _context.Catalogs
-                .Include(c => c.ParentCatalog)
+                .Include(c => c.ChildCatalogs)
                 .FirstOrDefaultAsync(m => m.CatalogId == id);
             if (catalog == null)
             {
@@ -44,124 +44,7 @@ namespace Test_Task.Controllers
             return View(catalog);
         }
 
-        // GET: Catalogs/Create
-        public IActionResult Create()
-        {
-            ViewData["ParentCatalogId"] = new SelectList(_context.Catalogs, "CatalogId", "CatalogId");
-            return View();
-        }
 
-        // POST: Catalogs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CatalogId,Name,ParentCatalogId")] Catalog catalog)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(catalog);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ParentCatalogId"] = new SelectList(_context.Catalogs, "CatalogId", "CatalogId", catalog.ParentCatalogId);
-            return View(catalog);
-        }
 
-        // GET: Catalogs/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Catalogs == null)
-            {
-                return NotFound();
-            }
-
-            var catalog = await _context.Catalogs.FindAsync(id);
-            if (catalog == null)
-            {
-                return NotFound();
-            }
-            ViewData["ParentCatalogId"] = new SelectList(_context.Catalogs, "CatalogId", "CatalogId", catalog.ParentCatalogId);
-            return View(catalog);
-        }
-
-        // POST: Catalogs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CatalogId,Name,ParentCatalogId")] Catalog catalog)
-        {
-            if (id != catalog.CatalogId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(catalog);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CatalogExists(catalog.CatalogId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ParentCatalogId"] = new SelectList(_context.Catalogs, "CatalogId", "CatalogId", catalog.ParentCatalogId);
-            return View(catalog);
-        }
-
-        // GET: Catalogs/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Catalogs == null)
-            {
-                return NotFound();
-            }
-
-            var catalog = await _context.Catalogs
-                .Include(c => c.ParentCatalog)
-                .FirstOrDefaultAsync(m => m.CatalogId == id);
-            if (catalog == null)
-            {
-                return NotFound();
-            }
-
-            return View(catalog);
-        }
-
-        // POST: Catalogs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Catalogs == null)
-            {
-                return Problem("Entity set 'CatalogContext.Catalogs'  is null.");
-            }
-            var catalog = await _context.Catalogs.FindAsync(id);
-            if (catalog != null)
-            {
-                _context.Catalogs.Remove(catalog);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CatalogExists(int id)
-        {
-          return (_context.Catalogs?.Any(e => e.CatalogId == id)).GetValueOrDefault();
-        }
     }
 }

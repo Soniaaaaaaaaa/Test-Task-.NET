@@ -1,41 +1,15 @@
-﻿@model IEnumerable<Test_Task.Models.Catalog>
+﻿@model List<Test_Task.Models.Catalog>
 
-@{
-    ViewData["Title"] = "Index";
-}
+<ul>
+    @foreach (var catalog in Model)
+    {
+        <li>
+            <h2><a href="@Url.Action("Details", new { id = catalog.CatalogId })">@catalog.Name</a></h2>
+            @if (catalog.ChildCatalogs!=null && catalog.ChildCatalogs.Any())
+            {
+                await Html.RenderPartialAsync("Index", catalog.ChildCatalogs.ToList());
+            }
+        </li>
+    }
+</ul>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ParentCatalog)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ParentCatalog.CatalogId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CatalogId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CatalogId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CatalogId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
